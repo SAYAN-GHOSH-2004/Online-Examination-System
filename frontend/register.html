@@ -180,7 +180,7 @@ button:hover {
 
         <div class="input-group">
           <i class="fas fa-user-circle"></i>
-          <input type="mail" id="email" placeholder="Enter Your Email" required>
+          <input type="email" id="email" placeholder="Enter Your Email" required>
         </div>
 
         <div class="input-group">
@@ -212,18 +212,20 @@ document.getElementById("regForm").addEventListener("submit", async (e) => {
 
   const res = await fetch("/api/auth/register", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json"
+    },
     body: JSON.stringify({
-      name: name.value,
-      email: email.value,
-      password: password.value
+      name: document.getElementById("name").value.trim(),
+      email: document.getElementById("email").value.trim(),
+      password: document.getElementById("password").value.trim()
     })
   });
 
   const data = await res.json();
 
   if (!res.ok) {
-    msg.innerText = data.message;
+    document.getElementById("msg").innerText = data.message;
     return;
   }
 
