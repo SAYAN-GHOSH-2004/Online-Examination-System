@@ -9,7 +9,8 @@ const Result = require("../models/Result");
 // ================= USERS =================
 router.get("/users", async (req, res) => {
   try {
-    const users = await User.find().select(
+    const users = await User.find(
+      { role: "student" }, // optional filter
       "name email referenceCode examCompleted"
     );
     res.json(users);
@@ -17,6 +18,7 @@ router.get("/users", async (req, res) => {
     res.status(500).json({ message: "Failed to load users" });
   }
 });
+
 
 
 // ================= ADD QUESTION =================
