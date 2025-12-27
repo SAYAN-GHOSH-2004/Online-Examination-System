@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>View Result</title>
+
+<style>
+* {
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #16a085;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.container {
+  background: #fff;
+  padding: 30px;
+  border-radius: 8px;
+  width: 350px;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+}
+
+h2 {
+  text-align: center;
+  background: #0e7c6d;
+  color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background: #16a085;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #138d75;
+}
+
+#msg {
+  margin-top: 10px;
+  color: red;
+  text-align: center;
+}
+
+.result-box {
+  display: none;
+  margin-top: 15px;
+  text-align: center;
+  border-top: 1px solid #ccc;
+  padding-top: 15px;
+}
+
+.result-box p {
+  margin: 5px 0;
+  font-size: 16px;
+}
+#logoutBtn {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  background: #e74c3c;
+  color: white;
+  padding: 8px 15px;
+  text-decoration: none;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+#logoutBtn:hover {
+  background: #c0392b;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h2>View Result</h2>
+
+  <input id="referenceCode" placeholder="Reference Code" required>
+  <input id="password" type="password" placeholder="Password" required>
+
+  <button onclick="getResult()">Check Result</button>
+
+  <p id="msg"></p>
+
+  <div class="result-box" id="resultBox">
+    <p><b>Name:</b> <span id="rName"></span></p>
+    <p><b>Email:</b> <span id="rEmail"></span></p>
+    <p><b>Score:</b> <span id="rScore"></span></p>
+    <p><b>Total:</b> <span id="rTotal"></span></p>
+  </div>
+</div>
+<a href="index.html" id="logoutBtn">Logout</a>
+
+<script>
+async function getResult() {
+  msg.innerText = "";
+
+  const res = await fetch("/api/exam/result", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      referenceCode: referenceCode.value.trim(),
+      password: password.value.trim()
+    })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    msg.innerText = data.message;
+    return;
+  }
+
+  resultBox.style.display = "block";
+  rName.innerText = data.name;
+  rEmail.innerText = data.email;
+  rScore.innerText = data.score;
+  rTotal.innerText = data.total;
+}
+
+  document.getElementById("logoutBtn").addEventListener("click", () => {
+    // Clear stored login data
+    localStorage.clear();
+    sessionStorage.clear();
+
+    // Prevent back button access
+    window.location.replace("index.html");
+  });
+</script>
+
+</body>
+</html>
