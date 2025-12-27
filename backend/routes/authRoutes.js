@@ -5,58 +5,69 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 
-
-// ✅ REGISTER
+// ================= UTIL =================
 function generateRefCode() {
   return "EXAM-" + Math.random().toString(36).substring(2, 8).toUpperCase();
 }
 
-// REGISTER
+// ================= REGISTER =================
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
+    // ✅ BASIC VALIDATION
+    if (!name || !email || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // ✅ CHECK EMAIL
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       return res.status(400).json({ message: "Email already registered" });
     }
 
+    // ✅ HASH PASSWORD
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    let refCode;
+    // ✅ UNIQUE REF CODE
+    let referenceCode;
     let exists = true;
-
-    // ensure unique reference code
     while (exists) {
-      refCode = generateRefCode();
-      exists = await User.findOne({ referenceCode: refCode });
+      referenceCode = generateRefCode();
+      exists = await User.findOne({ referenceCode });
     }
 
-    await User.create({
-      name,
-      email,
+    // ✅ SAVE USER (IMPORTANT FIX)
+    const user = await User.create({
+      name: name.trim(),          // 🔥 FIXED
+      email: email.trim().toLowerCase(),
       password: hashedPassword,
-      referenceCode: refCode
+      referenceCode,
+      role: "student",
+      examCompleted: false
     });
 
     res.json({
       message: "Registration successful",
-      referenceCode: refCode
+      referenceCode: user.referenceCode
     });
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("REGISTER ERROR:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
 
-
-
-// ✅ LOGIN
+// ================= LOGIN =================
 router.post("/login", async (req, res) => {
   try {
     const { referenceCode, password } = req.body;
 
-    // 🔑 ADMIN LOGIN
+    if (!referenceCode || !password) {
+      return res.status(400).json({ message: "All fields are required" });
+    }
+
+    // ================= ADMIN LOGIN =================
     if (referenceCode === "admin") {
       const admin = await User.findOne({ role: "admin" });
 
@@ -75,7 +86,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    // 👨‍🎓 STUDENT LOGIN
+    // ================= STUDENT LOGIN =================
     const user = await User.findOne({ referenceCode });
 
     if (!user) {
@@ -96,13 +107,14 @@ router.post("/login", async (req, res) => {
     res.json({
       message: "Login successful",
       role: "student",
-      email: user.email
+      email: user.email,
+      name: user.name
     });
 
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("LOGIN ERROR:", err);
+    res.status(500).json({ message: "Server error" });
   }
 });
-
 
 module.exports = router;
