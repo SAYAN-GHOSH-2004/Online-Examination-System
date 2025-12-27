@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online MCQ Test</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background-color: #16a085;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .exam-wrapper {
+      background: #ffffff;
+      width: 90%;
+      max-width: 700px;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      text-align: center;
+      color: #16a085;
+      margin-bottom: 10px;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px dashed #16a085;
+      margin-bottom: 20px;
+    }
+
+    #timer {
+      text-align: center;
+      background: #16a085;
+      color: #fff;
+      padding: 8px 15px;
+      border-radius: 20px;
+      width: fit-content;
+      margin: 0 auto 20px auto;
+      font-weight: bold;
+    }
+
+    #questionBox h4 {
+      margin-bottom: 10px;
+      color: #555;
+    }
+
+    #questionBox p {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #222;
+    }
+
+    .option {
+      display: block;
+      background: #ecf0f1;
+      padding: 12px 15px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .option:hover {
+      background: #d0ece7;
+    }
+
+    .option input {
+      margin-right: 10px;
+    }
+
+    #nextBtn {
+      margin-top: 20px;
+      width: 100%;
+      background-color: #16a085;
+      border: none;
+      color: white;
+      padding: 12px;
+      font-size: 16px;
+      border-radius: 25px;
+      cursor: pointer;
+    }
+
+    #nextBtn:hover {
+      background-color: #138d75;
+    }
+
+    /* Loader */
+    #loader {
+      text-align: center;
+      font-size: 18px;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="exam-wrapper">
+  <h2>MCQ Test</h2>
+  <hr>
+
+  <div id="timer">Time Left: 60</div>
+
+  <div id="loader">Loading questions...</div>
+
+  <div id="questionBox" style="display:none;"></div>
+
+  <button id="nextBtn" onclick="nextQuestion()" style="display:none;">
+    Next
+  </button>
+</div>
+
+<script>
+  let questions = [];
+  let currentIndex = 0;
+  let answers = [];
+  let timeLeft = 60;
+  let timerInterval;
+
+  const email = localStorage.getItem("studentEmail");
+  if (!email) {
+    alert("Please login first");
+    window.location.href = "login.html";
+  }
+
+  // Load questions
+  async function loadQuestions() {
+    try {
+      const res = await fetch("/api/exam/questions");
+      questions = await res.json();
+
+      if (questions.length === 0) {
+        document.getElementById("loader").innerText = "No questions available!";
+        return;
+      }
+
+      document.getElementById("loader").style.display = "none";
+      document.getElementById("questionBox").style.display = "block";
+      document.getElementById("nextBtn").style.display = "block";
+
+      showQuestion();
+    } catch (err) {
+      document.getElementById("loader").innerText = "Failed to load questions!";
+    }
+  }
+
+  // Show question
+  function showQuestion() {
+    clearInterval(timerInterval);
+    timeLeft = 60;
+    timer.innerText = "Time Left: 60";
+
+    const q = questions[currentIndex];
+
+    questionBox.innerHTML = `
+      <h4>Question ${currentIndex + 1} of ${questions.length}</h4>
+      <p>${q.question}</p>
+      ${q.options.map((o, i) => `
+        <label class="option">
+          <input type="radio" name="option" value="${i}">
+          ${o}
+        </label>
+      `).join("")}
+    `;
+
+    startTimer();
+  }
+
+  // Timer
+  function startTimer() {
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      timer.innerText = "Time Left: " + timeLeft;
+
+      if (timeLeft === 0) {
+        saveAnswer(-1);
+        nextQuestion();
+      }
+    }, 1000);
+  }
+
+  // Save answer
+  function saveAnswer(defaultValue = null) {
+    const selected = document.querySelector("input[name='option']:checked");
+    answers[currentIndex] = selected ? Number(selected.value) : defaultValue;
+  }
+
+  // Next question
+  function nextQuestion() {
+    saveAnswer();
+    clearInterval(timerInterval);
+    currentIndex++;
+
+    if (currentIndex < questions.length) {
+      showQuestion();
+    } else {
+      submitExam();
+    }
+  }
+
+  // Submit exam
+  async function submitExam() {
+    await fetch("/api/exam/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, answers })
+    });
+
+    alert("Exam completed successfully!");
+    localStorage.removeItem("studentEmail");
+    window.location.href = "index.html";
+  }
+
+  loadQuestions();
+</script>
+
+</body>
+</html>

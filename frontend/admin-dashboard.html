@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard</title>
+
+<style>
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #ecf0f1;
+  padding: 20px;
+}
+
+/* Header */
+h2 {
+  text-align: center;
+  color: #0e7c6d;
+  margin-bottom: 20px;
+}
+
+h3 {
+  margin: 20px 0 10px;
+  color: #15584b;
+}
+
+/* Card Sections */
+.section {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  margin-bottom: 25px;
+}
+
+/* Form */
+form input, form select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+button {
+  background: #16a085;
+  color: #fff;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #138d75;
+}
+
+/* Message */
+#msg {
+  margin-top: 10px;
+  color: green;
+}
+
+/* Tables */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+}
+
+th, td {
+  padding: 8px;
+  border: 1px solid #ccc;
+  text-align: center;
+}
+
+th {
+  background: #16a085;
+  color: #fff;
+}
+
+/* Question Card */
+.question-card {
+  border: 1px solid #ccc;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  table {
+    font-size: 12px;
+  }
+
+  h2 {
+    font-size: 22px;
+  }
+
+  h3 {
+    font-size: 18px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<h2>Admin Dashboard</h2>
+
+<!-- ================= ADD QUESTION ================= -->
+<div class="section">
+<h3>Add Question</h3>
+
+<form id="questionForm">
+  <input id="question" placeholder="Enter question" required>
+
+  <input id="opt1" placeholder="Option 1" required>
+  <input id="opt2" placeholder="Option 2" required>
+  <input id="opt3" placeholder="Option 3" required>
+  <input id="opt4" placeholder="Option 4" required>
+
+  <select id="correctAnswer" required>
+    <option value="">Select Correct Answer</option>
+    <option value="0">Option 1</option>
+    <option value="1">Option 2</option>
+    <option value="2">Option 3</option>
+    <option value="3">Option 4</option>
+  </select>
+
+  <button type="submit">Add Question</button>
+</form>
+
+<p id="msg"></p>
+</div>
+
+<!-- ================= USERS ================= -->
+<div class="section">
+<h3>Registered Users</h3>
+<div id="usersTable"></div>
+</div>
+
+<!-- ================= QUESTIONS ================= -->
+<div class="section">
+<h3>All Questions</h3>
+<div id="questions"></div>
+</div>
+
+<!-- ================= RESULTS ================= -->
+<div class="section">
+  <h3>Results</h3>
+  <div id="results"></div>
+
+  <!-- LOGOUT LINK -->
+  <div style="text-align:center; margin-top:15px;">
+    <a href="#" id="logoutLink" onclick="adminLogout()"
+       style="
+         color:#c0392b;
+         font-weight:bold;
+         text-decoration:none;
+         font-size:16px;
+       ">
+      Logout
+    </a>
+  </div>
+</div>
+
+
+<script>
+// ================= ADD QUESTION =================
+document.getElementById("questionForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const options = [
+    opt1.value.trim(),
+    opt2.value.trim(),
+    opt3.value.trim(),
+    opt4.value.trim()
+  ];
+
+  const res = await fetch("/api/admin/add-question", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      question: question.value.trim(),
+      options,
+      correctAnswer: Number(correctAnswer.value)
+    })
+  });
+
+  const data = await res.json();
+  msg.innerText = data.message;
+
+  questionForm.reset();
+  loadQuestions();
+});
+
+// ================= LOAD USERS =================
+async function loadUsers() {
+  const res = await fetch("/api/admin/users");
+  const users = await res.json();
+
+  let html = "<table><tr><th>Name</th><th>Email</th><th>Ref Code</th><th>Exam</th><th>Action</th></tr>";
+
+  users.forEach(u => {
+    html += `<tr>
+      <td>${u.name}</td>
+      <td>${u.email}</td>
+      <td>${u.referenceCode}</td>
+      <td>${u.examCompleted ? "Completed" : "Pending"}</td>
+      <td><button onclick="resetExam('${u.email}')">Reset</button></td>
+    </tr>`;
+  });
+
+  html += "</table>";
+  usersTable.innerHTML = html;
+}
+
+// ================= LOAD QUESTIONS =================
+async function loadQuestions() {
+  const res = await fetch("/api/admin/questions");
+  const questions = await res.json();
+
+  let html = "";
+  questions.forEach(q => {
+    html += `
+      <div class="question-card">
+        <b>${q.question}</b>
+        <ul>${q.options.map(o => `<li>${o}</li>`).join("")}</ul>
+        <button onclick="deleteQuestion('${q._id}')">Delete</button>
+      </div>
+    `;
+  });
+
+  document.getElementById("questions").innerHTML = html;
+}
+
+// ================= DELETE QUESTION =================
+async function deleteQuestion(id) {
+  if (!confirm("Delete this question?")) return;
+  await fetch("/api/admin/question/" + id, { method: "DELETE" });
+  loadQuestions();
+}
+
+// ================= LOAD RESULTS =================
+async function loadResults() {
+  const res = await fetch("/api/admin/results");
+  const results = await res.json();
+
+  let html = "<table><tr><th>Email</th><th>Score</th><th>Total</th></tr>";
+
+  results.forEach(r => {
+    html += `<tr>
+      <td>${r.email}</td>
+      <td>${r.score}</td>
+      <td>${r.total}</td>
+    </tr>`;
+  });
+
+  html += "</table>";
+  document.getElementById("results").innerHTML = html;
+}
+
+// ================= RESET EXAM =================
+async function resetExam(email) {
+  if (!confirm("Reset exam for this user?")) return;
+
+  const res = await fetch("/api/admin/reset/" + email, { method: "POST" });
+  const data = await res.json();
+  alert(data.message);
+
+  loadUsers();
+  loadResults();
+}
+// ================= ADMIN LOGOUT =================
+function adminLogout() {
+  if (!confirm("Are you sure you want to logout?")) return;
+
+  // If you store anything later (JWT / role), clear it here
+  localStorage.clear();
+
+  window.location.href = "index.html";
+}
+
+
+// ================= INITIAL LOAD =================
+loadUsers();
+loadQuestions();
+loadResults();
+</script>
+
+</body>
+</html>

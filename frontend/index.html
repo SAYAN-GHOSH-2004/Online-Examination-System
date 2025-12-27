@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Online Examination System</title>
+
+<style>
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #16a085, #0e7c6d);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+}
+
+/* Main container */
+.main-container {
+  background: #ffffff;
+  width: 100%;
+  max-width: 950px;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: -1px 20px 20px 8px rgba(0, 0, 0, 0.2);
+  text-align: center;
+}
+
+/* Header */
+.main-container h1 {
+  color: #0e7c6d;
+  margin-bottom: 10px;
+  font-size: 32px;
+}
+
+.main-container p {
+  color: #4b4a4a;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+/* 🔴 Guideline Box */
+.guideline-box {
+  border: 2px solid red;
+  color: red;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 30px;
+  text-align: left;
+  animation: blink 1.2s infinite;
+}
+
+.guideline-box h3 {
+  text-align: center;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.guideline-box ul {
+  padding-left: 20px;
+  font-size: 14px;
+}
+
+.guideline-box li {
+  margin-bottom: 6px;
+}
+
+/* Blinking animation */
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.3; }
+  100% { opacity: 1; }
+}
+
+/* Button grid */
+.button-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* Cards */
+.card {
+  background: #16a085;
+  color: black;
+  padding: 30px 20px;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+}
+
+.card h2 {
+  margin-bottom: 10px;
+  font-size: 22px;
+}
+
+.card p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+/* Footer */
+.footer {
+  margin-top: 30px;
+  font-size: 13px;
+  color: #777;
+}
+
+/* 📱 Responsive */
+@media (max-width: 768px) {
+  .button-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .main-container h1 {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 400px) {
+  .main-container {
+    padding: 20px;
+  }
+
+  .card h2 {
+    font-size: 20px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="main-container">
+  <h1>Online Examination System</h1>
+  <p>Secure • Reliable • Time-Bound Online Examination Platform</p>
+
+  <!-- 🔴 GUIDELINES -->
+  <div class="guideline-box">
+    <h3>⚠ Important Exam Guidelines</h3>
+    <ul>
+      <li>New users must <b>register first</b> to get a Reference Code.</li>
+      <li>Copy the Reference Code and <b>login using it</b> with your password.</li>
+      <li>Each question has <b>60 seconds</b> and cannot be revisited.</li>
+      <li>Once the exam is submitted, <b>re-attempt is not allowed</b>.</li>
+      <li>Do not refresh or close the browser during the exam.</li>
+      <li>After successful submission, you will be redirected to the home page.</li>
+    </ul>
+    <H3>Note Down the Reference Code for future update</H3>
+  </div>
+
+  <!-- BUTTONS -->
+  <div class="button-grid">
+    <a href="admin-login.html" class="card">
+      <h2>Admin Panel</h2>
+      <p>Add / Edit Questions, View Results, Reset Exams</p>
+    </a>
+
+    <a href="register.html" class="card">
+      <h2>New Registration</h2>
+      <p>Create account and generate Reference Code</p>
+    </a>
+
+    <a href="login.html" class="card">
+      <h2>Student Login</h2>
+      <p>Login with Reference Code & Start Exam</p>
+    </a>
+  </div>
+
+  <div class="footer">
+    © 2025 Online Examination System | Academic Project
+  </div>
+</div>
+
+</body>
+</html>

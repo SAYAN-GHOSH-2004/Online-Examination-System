@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login</title>
+
+<style>
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #16a085;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 15px;
+}
+
+/* Outer container */
+.signup-container {
+  background: #16a085;
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Card */
+.signup-box {
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  width: 100%;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+/* Header */
+.signup-box h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #fff;
+  background: #0e7c6d;
+  padding: 12px;
+  border-radius: 6px 6px 0 0;
+  font-size: 20px;
+}
+
+/* Input groups */
+form .input-group {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.input-group i {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: #16a085;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 10px 12px 35px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  font-size: 15px;
+}
+
+/* Button */
+button {
+  width: 100%;
+  background: #16a085;
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background: #138d75;
+}
+
+/* Bottom text */
+.login {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.login a {
+  color: #16a085;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* Message */
+#msg {
+  text-align: center;
+  margin-top: 10px;
+  color: red;
+  font-size: 14px;
+}
+
+/* ===================== */
+/* 📱 SMALL DEVICES */
+/* ===================== */
+@media (max-width: 400px) {
+  .signup-box {
+    padding: 20px;
+  }
+
+  .signup-box h2 {
+    font-size: 18px;
+  }
+
+  input {
+    font-size: 14px;
+  }
+
+  button {
+    font-size: 15px;
+  }
+}
+
+/* ===================== */
+/* 📱 LARGE PHONES */
+/* ===================== */
+@media (min-width: 401px) and (max-width: 600px) {
+  .signup-container {
+    max-width: 380px;
+  }
+}
+
+/* ===================== */
+/* 💻 TABLET & DESKTOP */
+/* ===================== */
+@media (min-width: 768px) {
+  .signup-container {
+    max-width: 420px;
+  }
+}
+</style>
+</head>
+
+<body>
+  <div class="signup-container">
+    <div class="signup-box">
+      <h2>Login Form</h2>
+
+      <form id="loginForm">
+        <div class="input-group">
+          <i class="fas fa-user-circle"></i>
+          <input type="text" id="referenceCode" placeholder="Enter Your Reference Code" required>
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" placeholder="Enter Your Password" required>
+        </div>
+
+        <button type="submit">Login</button>
+
+        <p class="login">
+          New User? <a href="register.html">Registration</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <p id="msg"></p>
+
+<script>
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const res = await fetch("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      referenceCode: referenceCode.value,
+      password: password.value
+    })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    msg.innerText = data.message;
+    return;
+  }
+
+  localStorage.setItem("studentEmail", data.email);
+  window.location.href = "exam.html";
+});
+</script>
+
+</body>
+</html>

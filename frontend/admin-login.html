@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Login</title>
+
+<style>
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: linear-gradient(135deg, #16a085, #0e7c6d);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+}
+
+/* Container */
+.admin-container {
+  width: 100%;
+  max-width: 400px;
+  background: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+  padding: 25px;
+}
+
+/* Header */
+.admin-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  background: #0e7c6d;
+  color: #fff;
+  padding: 12px;
+  border-radius: 6px;
+  font-size: 22px;
+}
+
+/* Form */
+form {
+  margin-top: 10px;
+}
+
+form input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  font-size: 15px;
+}
+
+button {
+  width: 100%;
+  background: #16a085;
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #138d75;
+}
+
+/* Message */
+#msg {
+  text-align: center;
+  margin-top: 12px;
+  color: red;
+  font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 400px) {
+  .admin-container {
+    padding: 20px;
+  }
+
+  .admin-container h2 {
+    font-size: 20px;
+  }
+
+  button {
+    font-size: 15px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="admin-container">
+  <h2>Admin Login</h2>
+
+  <form id="adminLoginForm">
+    <input id="adminRef" placeholder="Reference Code (Admin)" required>
+    <input id="adminPassword" type="password" placeholder="Password" required>
+    <button type="submit">Login</button>
+  </form>
+
+  <p id="msg"></p>
+</div>
+
+<script>
+document.getElementById("adminLoginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          referenceCode: adminRef.value,
+          password: adminPassword.value
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        msg.innerText = data.message;
+        return;
+      }
+
+      if (data.role === "admin") {
+        // Redirect to dashboard
+        window.location.href = "admin-dashboard.html";
+      } else {
+        msg.innerText = "Invalid admin credentials!";
+      }
+    });
+</script>
+
+</body>
+</html>

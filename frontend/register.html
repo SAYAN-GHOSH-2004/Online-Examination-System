@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up</title>
+
+<style>
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  background: #16a085;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 15px;
+}
+
+/* Outer container */
+.signup-container {
+  background: #16a085;
+  padding: 20px;
+  border-radius: 10px;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Card */
+.signup-box {
+  background: #fff;
+  padding: 25px;
+  border-radius: 8px;
+  width: 100%;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+}
+
+/* Header */
+.signup-box h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #fff;
+  background: #0e7c6d;
+  padding: 12px;
+  border-radius: 6px 6px 0 0;
+  font-size: 20px;
+}
+
+/* Input groups */
+form .input-group {
+  position: relative;
+  margin-bottom: 15px;
+}
+
+.input-group i {
+  position: absolute;
+  top: 50%;
+  left: 10px;
+  transform: translateY(-50%);
+  color: #16a085;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 12px 10px 12px 35px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  font-size: 15px;
+}
+
+/* Button */
+button {
+  width: 100%;
+  background: #16a085;
+  color: #fff;
+  padding: 12px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background: #138d75;
+}
+
+/* Login link */
+.login {
+  text-align: center;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.login a {
+  color: #16a085;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* Message */
+#msg {
+  text-align: center;
+  margin-top: 10px;
+  color: red;
+  font-size: 14px;
+}
+
+/* Reference box */
+#refBox {
+  margin-top: 15px;
+  text-align: center;
+  background: #f2f2f2;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+#refBox button {
+  margin-top: 8px;
+  background: #0e7c6d;
+}
+
+/* ===================== */
+/* 📱 SMALL DEVICES */
+/* ===================== */
+@media (max-width: 400px) {
+  .signup-box {
+    padding: 20px;
+  }
+
+  .signup-box h2 {
+    font-size: 18px;
+  }
+
+  input {
+    font-size: 14px;
+  }
+
+  button {
+    font-size: 15px;
+  }
+}
+
+/* ===================== */
+/* 📱 LARGE PHONES */
+/* ===================== */
+@media (min-width: 401px) and (max-width: 600px) {
+  .signup-container {
+    max-width: 380px;
+  }
+}
+
+/* ===================== */
+/* 💻 TABLET & DESKTOP */
+/* ===================== */
+@media (min-width: 768px) {
+  .signup-container {
+    max-width: 420px;
+  }
+}
+</style>
+</head>
+
+<body>
+  <div class="signup-container">
+    <div class="signup-box">
+      <h2>Registration Form</h2>
+
+      <form id="regForm">
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <input type="text" id="name" placeholder="Enter Your FullName" required>
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-user-circle"></i>
+          <input type="mail" id="email" placeholder="Enter Your Email" required>
+        </div>
+
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" placeholder="Enter Your Password" required>
+        </div>
+
+        <button type="submit">Register</button>
+
+        <p class="login">
+          Already have an account? <a href="login.html">Login now</a>
+        </p>
+        <br>
+      </form>
+
+      <p id="msg"></p>
+
+      <p id="refBox" style="display:none;">
+        Reference Code:
+        <b id="refCode"></b><br>
+        <button onclick="copyCode()">Copy</button>
+      </p>
+    </div>
+  </div>
+
+<script>
+document.getElementById("regForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const res = await fetch("/api/auth/register", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: name.value,
+      email: email.value,
+      password: password.value
+    })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    msg.innerText = data.message;
+    return;
+  }
+
+  refCode.innerText = data.referenceCode;
+  refBox.style.display = "block";
+  msg.innerText = "Registration successful! Copy your reference code.";
+});
+
+function copyCode() {
+  navigator.clipboard.writeText(refCode.innerText).then(() => {
+    alert("Reference code copied! Redirecting to login page...");
+    window.location.href = "login.html";
+  });
+}
+</script>
+
+</body>
+</html>
