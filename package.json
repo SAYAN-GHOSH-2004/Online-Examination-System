@@ -2,6 +2,7 @@
   "name": "online-exam-system",
   "version": "1.0.0",
   "scripts": {
+   "start": "node backend/server.js",
     "dev": "nodemon backend/server.js"
   },
   "dependencies": {
