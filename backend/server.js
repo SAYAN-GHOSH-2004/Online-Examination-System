@@ -6,6 +6,7 @@ require("dotenv").config({
 // ================= IMPORTS =================
 const express = require("express");
 const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
 
 // ================= MODELS =================
 const User = require("./models/User");
@@ -43,22 +44,24 @@ app.use("/api/admin", adminRoutes);
 app.use("/api/exam", examRoutes);
 
 // ================= CREATE DEFAULT ADMIN =================
+
 async function createAdmin() {
   try {
     const adminExists = await User.findOne({ role: "admin" });
+    if (adminExists) return;
 
-    if (!adminExists) {
-      
-      await User.create({
-        name: "Admin",
-        email: "admin@exam.com",
-        password: "$2b$10$bWSm2YCJANTQtgkAohezB.pwe5IrqaoAJXfVV0FBlaVa16fE96ljK", // 123
-        role: "admin",
-        
-      });
+    const hashedPassword = await bcrypt.hash("admin123", 10);
 
-      console.log("Default admin created ✔ (admin@exam.com / admin123)");
-    }
+    await User.create({
+      name: "Admin",
+      email: "admin@exam.com",
+      password: "$2b$10$bWSm2YCJANTQtgkAohezB.pwe5IrqaoAJXfVV0FBlaVa16fE96ljK",
+      referenceCode: "admin",   // 🔥 REQUIRED FIX
+      role: "admin",
+      examCompleted: true
+    });
+
+    console.log("Admin created successfully ✔");
   } catch (err) {
     console.error("Admin creation failed ❌", err.message);
   }
@@ -69,6 +72,5 @@ createAdmin();
 // ================= SERVER START =================
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
-
